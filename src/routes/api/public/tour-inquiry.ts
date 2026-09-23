@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/public/tour-inquiry")({
         if (!lovableKey || !resendKey) return Response.json({ error: "Email delivery is not configured yet." }, { status: 503 });
 
         const d = parsed.data;
-        const rows = [
+        const rows: Array<[string, string]> = [
           ["Name", d.name], ["Email", d.email], ["Phone", d.phone],
           ["Requested Date", d.requestedDate], ["Number in Party", String(d.partySize)],
           ["Ship Name", d.shipName || "Not provided"],

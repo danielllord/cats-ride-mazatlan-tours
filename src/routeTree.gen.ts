@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicTourInquiryRouteImport } from './routes/api/public/tour-inquiry'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTourInquiryRoute = ApiPublicTourInquiryRouteImport.update({
+  id: '/api/public/tour-inquiry',
+  path: '/api/public/tour-inquiry',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/public/tour-inquiry': typeof ApiPublicTourInquiryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/public/tour-inquiry': typeof ApiPublicTourInquiryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/public/tour-inquiry': typeof ApiPublicTourInquiryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/public/tour-inquiry'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/public/tour-inquiry'
+  id: '__root__' | '/' | '/api/public/tour-inquiry'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPublicTourInquiryRoute: typeof ApiPublicTourInquiryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/tour-inquiry': {
+      id: '/api/public/tour-inquiry'
+      path: '/api/public/tour-inquiry'
+      fullPath: '/api/public/tour-inquiry'
+      preLoaderRoute: typeof ApiPublicTourInquiryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPublicTourInquiryRoute: ApiPublicTourInquiryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
