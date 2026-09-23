@@ -1,0 +1,44 @@
+name: Build Cat's Ride Mazatlan
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build production site
+        run: npm run build
+
+      - name: Show build output
+        if: success()
+        run: |
+          echo "Build completed"
+          find .output -maxdepth 3 -type f | head -100
+
+      - name: Package production build
+        if: success()
+        run: tar -czf catsride-production.tar.gz .output
+
+      - name: Upload production build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catsride-production
+          path: catsride-production.tar.gz
+          retention-days: 7
