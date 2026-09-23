@@ -10,7 +10,7 @@ import lighthouseImage from "@/assets/lighthouse.jpg";
 import diversImage from "@/assets/cliff-divers.jpg";
 import triptychImage from "@/assets/mazatlan-stops-triptych.jpg";
 import drinksImage from "@/assets/mazatlan-drinks.jpg";
-import logoAsset from "@/assets/cats-ride-logo.png.asset.json";
+import logoImage from "@/assets/DE7F2FE3-0BF4-4BB6-A140-6E0055514C5E.png";
 import martinImage from "@/assets/387E7797-3109-4C5C-9EDC-48460A2AC1C1.png";
 import liverpoolImage from "@/assets/IMG_3294.jpeg";
 
@@ -49,7 +49,7 @@ function Header() {
   const [open, setOpen] = useState(false);
   return <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 shadow-sm backdrop-blur">
     <div className="mx-auto flex h-20 max-w-7xl items-center gap-4 px-4 sm:px-6">
-      <a href="#home" aria-label="Cat’s Ride Mazatlan home" className="shrink-0"><img src={logoAsset.url} alt="Cat’s Ride Mazatlan" className="h-14 w-auto" width="240" height="150" /></a>
+      <a href="#home" aria-label="Cat’s Ride Mazatlan home" className="shrink-0"><img src={logoImage} alt="Cat’s Ride Mazatlan" className="h-14 w-auto" width="240" height="150" /></a>
       <nav className="ml-auto hidden items-center gap-6 lg:flex" aria-label="Main navigation">{navItems.map(([label, id]) => <a key={id} href={`#${id}`} className="text-sm font-bold text-primary transition-colors hover:text-ocean">{label}</a>)}</nav>
       <Button variant="sunshine" className="ml-auto h-11 rounded-full px-4 font-extrabold lg:ml-2" onClick={scrollToBooking}>Book / Info</Button>
       <Button variant="ghost" size="icon" className="h-11 w-11 lg:hidden" onClick={() => setOpen(!open)} aria-label="Open navigation">{open ? <X /> : <Menu />}</Button>
@@ -61,28 +61,47 @@ function Header() {
 const BOOKING_EMAIL = "bookings@catsridemazatlan.com";
 
 function BookingForm() {
-  const [status, setStatus] = useState<"idle" | "success">("idle");
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
+    if (!form.reportValidity()) return;
+
     const data = new FormData(form);
-    const fields: Array<[string, string]> = [
-      ["Name", String(data.get("name") ?? "")],
-      ["Email", String(data.get("email") ?? "")],
-      ["Phone Number", String(data.get("phone") ?? "")],
-      ["Requested Tour Date", String(data.get("requestedDate") ?? "")],
-      ["Number in Party", String(data.get("partySize") ?? "")],
-      ["Ship Name", String(data.get("shipName") ?? "") || "Not provided"],
-      ["Questions / Special Requests", String(data.get("questions") ?? "") || "None"],
-    ];
-    const subject = "New Cat’s Ride Mazatlan Tour Inquiry";
-    const body = fields.map(([label, value]) => `${label}: ${value}`).join("\n");
-    const mailto = `mailto:${BOOKING_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
-    setStatus("success"); form.reset();
+    const payload = {
+      name: String(data.get("name") ?? ""),
+      email: String(data.get("email") ?? ""),
+      phone: String(data.get("phone") ?? ""),
+      requestedDate: String(data.get("requestedDate") ?? ""),
+      partySize: Number(data.get("partySize") ?? 0),
+      shipName: String(data.get("shipName") ?? ""),
+      questions: String(data.get("questions") ?? ""),
+      website: "",
+    };
+
+    setStatus("sending");
+    setErrorMessage("");
+    try {
+      const response = await fetch("/api/public/tour-inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "We couldn’t send your request. Please try again.");
+      setStatus("success");
+      form.reset();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "We couldn’t send your request. Please try again.");
+      setStatus("error");
+    }
   }
-  if (status === "success") return <div className="flex min-h-80 flex-col items-center justify-center rounded-lg bg-background p-8 text-center" role="status"><div className="mb-5 rounded-full bg-ocean p-4 text-ocean-foreground"><Check className="h-8 w-8" /></div><h3 className="text-2xl text-primary">Your email should be ready to send.</h3><p className="mt-3 max-w-md text-muted-foreground">Your email app opened with all the details filled in. Just press send and Martin will get back to you.</p><Button className="mt-6" variant="outline" onClick={() => setStatus("idle")}>Send another request</Button></div>;
-  return <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2" noValidate>
+
+  if (status === "success") return <div className="flex min-h-80 flex-col items-center justify-center rounded-lg bg-background p-8 text-center" role="status"><div className="mb-5 rounded-full bg-ocean p-4 text-ocean-foreground"><Check className="h-8 w-8" /></div><h3 className="text-2xl text-primary">Thanks! Your request was sent.</h3><p className="mt-3 max-w-md text-muted-foreground">Martin will get back to you with tour information and a quote.</p><Button className="mt-6" variant="outline" onClick={() => setStatus("idle")}>Send another request</Button></div>;
+
+  return <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
     <div><Label htmlFor="name">Name *</Label><Input id="name" name="name" required minLength={2} maxLength={100} className="mt-2 h-12 bg-background" /></div>
     <div><Label htmlFor="email">Email *</Label><Input id="email" name="email" type="email" required maxLength={255} className="mt-2 h-12 bg-background" /></div>
     <div><Label htmlFor="phone">Phone Number *</Label><Input id="phone" name="phone" type="tel" required minLength={7} maxLength={40} className="mt-2 h-12 bg-background" /></div>
@@ -90,7 +109,8 @@ function BookingForm() {
     <div><Label htmlFor="partySize">Number in Party *</Label><Input id="partySize" name="partySize" type="number" required min={1} max={40} inputMode="numeric" className="mt-2 h-12 bg-background" /></div>
     <div><Label htmlFor="shipName">Ship Name (if applicable)</Label><Input id="shipName" name="shipName" maxLength={120} className="mt-2 h-12 bg-background" /></div>
     <div className="sm:col-span-2"><Label htmlFor="questions">Questions / Special Requests</Label><Textarea id="questions" name="questions" maxLength={2000} className="mt-2 min-h-32 bg-background" /></div>
-    <Button type="submit" variant="sunshine" size="lg" className="h-13 rounded-full font-extrabold sm:col-span-2">REQUEST TOUR INFO<ChevronRight /></Button>
+    {status === "error" && <p className="sm:col-span-2 text-sm font-bold text-destructive" role="alert">{errorMessage} You can also email {BOOKING_EMAIL} directly.</p>}
+    <Button type="submit" variant="sunshine" size="lg" className="h-13 rounded-full font-extrabold sm:col-span-2" disabled={status === "sending"}>{status === "sending" ? "SENDING..." : "REQUEST TOUR INFO"}<ChevronRight /></Button>
   </form>;
 }
 
@@ -136,7 +156,7 @@ function Index() {
 
     <section className="relative overflow-hidden bg-primary px-5 py-14 text-center text-primary-foreground"><div className="absolute inset-x-0 bottom-0 h-1 bg-ocean" /><h2 className="text-4xl md:text-5xl">Ready to Explore Mazatlán?</h2><p className="mx-auto mt-3 max-w-xl text-primary-foreground/80">Send Martin a message and let’s plan your Mazatlán adventure!</p><Button variant="sunshine" size="lg" className="mt-7 h-14 rounded-full px-8 font-extrabold" onClick={scrollToBooking}>Book Your Tour Now <ChevronRight /></Button></section>
 
-    <footer className="bg-background py-12"><div className="mx-auto grid max-w-7xl items-center gap-8 px-5 text-center md:grid-cols-3 md:px-8"><img src={logoAsset.url} alt="Cat’s Ride Mazatlan logo" width="260" height="170" loading="lazy" className="mx-auto h-24 w-auto" /><div className="space-y-2 text-sm"><p className="flex items-center justify-center gap-2"><MapPin className="h-4 w-4 text-ocean" />Mazatlán, Sinaloa, Mexico</p><a className="block font-bold text-primary" href="tel:+016691647788">+01 6691647788</a><a className="block font-bold text-primary" href="mailto:bookings@catsridemazatlan.com">bookings@catsridemazatlan.com</a><a href={facebookUrl} target="_blank" rel="noreferrer" aria-label="Cat’s Ride Mazatlan on Facebook" className="mx-auto mt-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground"><Facebook /></a></div><div><p className="font-script text-4xl text-primary">Mazatlán<br />Always a Good Idea</p></div></div><div className="mx-auto mt-8 max-w-7xl border-t border-border px-5 pt-6 text-center text-[10px] font-extrabold uppercase tracking-[.3em] text-muted-foreground">People • Places • Good Times</div></footer>
+    <footer className="bg-background py-12"><div className="mx-auto grid max-w-7xl items-center gap-8 px-5 text-center md:grid-cols-3 md:px-8"><img src={logoImage} alt="Cat’s Ride Mazatlan logo" width="260" height="170" loading="lazy" className="mx-auto h-24 w-auto" /><div className="space-y-2 text-sm"><p className="flex items-center justify-center gap-2"><MapPin className="h-4 w-4 text-ocean" />Mazatlán, Sinaloa, Mexico</p><a className="block font-bold text-primary" href="tel:+016691647788">+01 6691647788</a><a className="block font-bold text-primary" href="mailto:bookings@catsridemazatlan.com">bookings@catsridemazatlan.com</a><a href={facebookUrl} target="_blank" rel="noreferrer" aria-label="Cat’s Ride Mazatlan on Facebook" className="mx-auto mt-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground"><Facebook /></a></div><div><p className="font-script text-4xl text-primary">Mazatlán<br />Always a Good Idea</p></div></div><div className="mx-auto mt-8 max-w-7xl border-t border-border px-5 pt-6 text-center text-[10px] font-extrabold uppercase tracking-[.3em] text-muted-foreground">People • Places • Good Times</div></footer>
     <Button variant="sunshine" className="fixed bottom-4 right-4 z-40 h-12 rounded-full px-5 font-extrabold shadow-xl md:hidden" onClick={scrollToBooking}><Anchor /> Book Tour</Button>
   </main>;
 }
