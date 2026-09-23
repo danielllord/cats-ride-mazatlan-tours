@@ -21,9 +21,8 @@ export type SendResult =
   | { ok: false; status: number; error: string };
 
 export async function sendTourInquiry(d: TourInquiry): Promise<SendResult> {
-  const lovableKey = process.env["LOVABLE_API_KEY"];
   const resendKey = process.env["RESEND_API_KEY"];
-  if (!lovableKey || !resendKey) {
+  if (!resendKey) {
     return { ok: false, status: 503, error: "Email delivery is not configured yet." };
   }
 
@@ -36,12 +35,11 @@ export async function sendTourInquiry(d: TourInquiry): Promise<SendResult> {
   const text = `New Cat’s Ride Mazatlan Tour Inquiry\n\n${rows.map(([label, value]) => `${label}: ${value}`).join("\n")}`;
   const htmlRows = rows.map(([label, value]) => `<tr><td style="padding:10px 14px;font-weight:700;color:#062c56;border-bottom:1px solid #dde7ec">${escapeHtml(label)}</td><td style="padding:10px 14px;border-bottom:1px solid #dde7ec">${escapeHtml(value)}</td></tr>`).join("");
 
-  const response = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+  const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": resendKey,
+      Authorization: `Bearer ${resendKey}`,
     },
     body: JSON.stringify({
       from: "Cat’s Ride Mazatlan <bookings@catsridemazatlan.com>",
