@@ -58,21 +58,30 @@ function Header() {
   </header>;
 }
 
+const BOOKING_EMAIL = "bookings@catsridemazatlan.com";
+
 function BookingForm() {
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setStatus("sending"); setMessage("");
+  const [status, setStatus] = useState<"idle" | "success">("idle");
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     const form = event.currentTarget;
-    const values = Object.fromEntries(new FormData(form).entries());
-    try {
-      const response = await fetch("/api/public/tour-inquiry", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Unable to send your request.");
-      setStatus("success"); form.reset();
-    } catch (error) { setStatus("error"); setMessage(error instanceof Error ? error.message : "Unable to send your request."); }
+    const data = new FormData(form);
+    const fields: Array<[string, string]> = [
+      ["Name", String(data.get("name") ?? "")],
+      ["Email", String(data.get("email") ?? "")],
+      ["Phone Number", String(data.get("phone") ?? "")],
+      ["Requested Tour Date", String(data.get("requestedDate") ?? "")],
+      ["Number in Party", String(data.get("partySize") ?? "")],
+      ["Ship Name", String(data.get("shipName") ?? "") || "Not provided"],
+      ["Questions / Special Requests", String(data.get("questions") ?? "") || "None"],
+    ];
+    const subject = "New Cat’s Ride Mazatlan Tour Inquiry";
+    const body = fields.map(([label, value]) => `${label}: ${value}`).join("\n");
+    const mailto = `mailto:${BOOKING_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+    setStatus("success"); form.reset();
   }
-  if (status === "success") return <div className="flex min-h-80 flex-col items-center justify-center rounded-lg bg-background p-8 text-center" role="status"><div className="mb-5 rounded-full bg-ocean p-4 text-ocean-foreground"><Check className="h-8 w-8" /></div><h3 className="text-2xl text-primary">Thanks! Your request has been sent to Martin.</h3><p className="mt-3 max-w-md text-muted-foreground">We’ll be in touch soon to help plan your Mazatlán adventure.</p><Button className="mt-6" variant="outline" onClick={() => setStatus("idle")}>Send another request</Button></div>;
+  if (status === "success") return <div className="flex min-h-80 flex-col items-center justify-center rounded-lg bg-background p-8 text-center" role="status"><div className="mb-5 rounded-full bg-ocean p-4 text-ocean-foreground"><Check className="h-8 w-8" /></div><h3 className="text-2xl text-primary">Your email should be ready to send.</h3><p className="mt-3 max-w-md text-muted-foreground">Your email app opened with all the details filled in. Just press send and Martin will get back to you.</p><Button className="mt-6" variant="outline" onClick={() => setStatus("idle")}>Send another request</Button></div>;
   return <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2" noValidate>
     <div><Label htmlFor="name">Name *</Label><Input id="name" name="name" required minLength={2} maxLength={100} className="mt-2 h-12 bg-background" /></div>
     <div><Label htmlFor="email">Email *</Label><Input id="email" name="email" type="email" required maxLength={255} className="mt-2 h-12 bg-background" /></div>
@@ -80,10 +89,8 @@ function BookingForm() {
     <div><Label htmlFor="requestedDate">Requested Tour Date *</Label><Input id="requestedDate" name="requestedDate" type="date" required min={new Date().toISOString().split("T")[0]} className="mt-2 h-12 bg-background" /></div>
     <div><Label htmlFor="partySize">Number in Party *</Label><Input id="partySize" name="partySize" type="number" required min={1} max={40} inputMode="numeric" className="mt-2 h-12 bg-background" /></div>
     <div><Label htmlFor="shipName">Ship Name (if applicable)</Label><Input id="shipName" name="shipName" maxLength={120} className="mt-2 h-12 bg-background" /></div>
-    <div className="hidden" aria-hidden="true"><Label htmlFor="website">Website</Label><Input id="website" name="website" tabIndex={-1} autoComplete="off" /></div>
     <div className="sm:col-span-2"><Label htmlFor="questions">Questions / Special Requests</Label><Textarea id="questions" name="questions" maxLength={2000} className="mt-2 min-h-32 bg-background" /></div>
-    {status === "error" && <p className="sm:col-span-2 rounded-md bg-destructive/10 p-3 text-sm font-bold text-destructive" role="alert">{message}</p>}
-    <Button type="submit" variant="sunshine" size="lg" disabled={status === "sending"} className="h-13 rounded-full font-extrabold sm:col-span-2">{status === "sending" ? "SENDING…" : "REQUEST TOUR INFO"}<ChevronRight /></Button>
+    <Button type="submit" variant="sunshine" size="lg" className="h-13 rounded-full font-extrabold sm:col-span-2">REQUEST TOUR INFO<ChevronRight /></Button>
   </form>;
 }
 
