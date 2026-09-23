@@ -11,8 +11,8 @@ import diversImage from "@/assets/cliff-divers.jpg";
 import triptychImage from "@/assets/mazatlan-stops-triptych.jpg";
 import drinksImage from "@/assets/mazatlan-drinks.jpg";
 import logoAsset from "@/assets/cats-ride-logo.png.asset.json";
-import martinAsset from "@/assets/martin-guide.png.asset.json";
-import liverpoolAsset from "@/assets/liverpool-alley.jpeg.asset.json";
+import martinImage from "@/assets/387E7797-3109-4C5C-9EDC-48460A2AC1C1.png";
+import liverpoolImage from "@/assets/IMG_3294.jpeg";
 
 const facebookUrl = "https://www.facebook.com/share/1GJbJEeeTo/?mibextid=wwXIfr";
 const navItems = [["Home", "home"], ["Tours", "tours"], ["About Martin", "martin"], ["Tour Stops", "stops"], ["FAQ", "faq"], ["Contact", "booking"]];
@@ -97,7 +97,7 @@ function BookingForm() {
 function Index() {
   const stops = [
     { title: "Lighthouse", note: "Optional", src: lighthouseImage, position: "center" },
-    { title: "Liverpool Alley", note: "Colorful Beatles-inspired stop", src: liverpoolAsset.url, position: "center" },
+    { title: "Liverpool Alley", note: "Colorful Beatles-inspired stop", src: liverpoolImage, position: "center" },
     { title: "Cliff Divers Show", src: diversImage, position: "center" },
     { title: "Historic Center & Beautiful Cathedral", src: triptychImage, position: "third-left" },
     { title: "Municipal Market", src: triptychImage, position: "third-center" },
@@ -122,7 +122,7 @@ function Index() {
 
     <section id="martin" className="py-16 md:py-24"><div className="mx-auto grid max-w-7xl items-center gap-10 px-5 md:grid-cols-[.9fr_1.05fr_1fr] md:px-8">
       <div><p className="font-script text-6xl font-bold text-ocean">Welcome!</p><h2 className="text-4xl text-primary">I’m Martin.</h2><p className="mt-6 leading-7 text-muted-foreground">Hi! I’m Martin, your local guide and driver in Mazatlán. I’m passionate about sharing the beauty, culture, and hidden gems of my hometown. Whether it’s your first visit or you’re coming back, I’ll make sure you experience the real Mazatlán with great service, stunning spots, and a lot of fun!</p><p className="mt-6 font-script text-4xl text-primary">Martin</p><p className="text-xs font-extrabold tracking-[.2em] text-ocean">YOUR LOCAL GUIDE</p></div>
-      <div className="relative"><img src={martinAsset.url} alt="Martin, local Cat’s Ride Mazatlan guide" width="768" height="768" loading="lazy" className="aspect-square w-full rounded-lg object-cover shadow-xl" /><div className="absolute -bottom-5 -left-3 rotate-[-5deg] rounded-md bg-sunshine px-5 py-3 text-center font-script text-2xl font-bold leading-5 text-sunshine-foreground shadow-lg">Good People<br />Great Tours<br />Mazatlán!</div></div>
+      <div className="relative"><img src={martinImage} alt="Martin, local Cat’s Ride Mazatlan guide" width="768" height="768" loading="lazy" className="aspect-square w-full rounded-lg object-cover shadow-xl" /><div className="absolute -bottom-5 -left-3 rotate-[-5deg] rounded-md bg-sunshine px-5 py-3 text-center font-script text-2xl font-bold leading-5 text-sunshine-foreground shadow-lg">Good People<br />Great Tours<br />Mazatlán!</div></div>
       <div id="tours" className="ocean-wash rounded-lg p-7 text-primary-foreground shadow-xl md:p-9"><h2 className="text-3xl leading-tight">Why Choose<br />Cat’s Ride Mazatlan?</h2><ul className="mt-6 space-y-3">{["Fully private tours", "Itinerary can be customized to your interests", "The right vehicle for your group", "No deposit required", "Pay only at the end of the tour", "Flexible tour lengths", "Capacity: 1–4 people per car"].map(x => <li key={x} className="flex gap-3"><span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sunshine text-sunshine-foreground"><Check className="h-3.5 w-3.5" /></span><span>{x}</span></li>)}</ul><p className="mt-7 text-right font-script text-3xl text-sunshine">Personal Tours.<br />Real Connections.</p></div>
     </div></section>
 
