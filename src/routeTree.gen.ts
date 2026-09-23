@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiPublicTourInquiryRouteImport } from './routes/api/public/tour-inquiry'
 
 const IndexRoute = IndexRouteImport.update({
@@ -17,6 +19,17 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTourInquiryRoute = ApiPublicTourInquiryRouteImport.update({
   id: '/api/public/tour-inquiry',
   path: '/api/public/tour-inquiry',
@@ -25,27 +38,48 @@ const ApiPublicTourInquiryRoute = ApiPublicTourInquiryRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mcp': typeof McpRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/public/tour-inquiry': typeof ApiPublicTourInquiryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mcp': typeof McpRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/public/tour-inquiry': typeof ApiPublicTourInquiryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mcp': typeof McpRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/public/tour-inquiry': typeof ApiPublicTourInquiryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/tour-inquiry'
+  fullPaths:
+    | '/'
+    | '/mcp'
+    | '/.well-known/oauth-protected-resource'
+    | '/api/public/tour-inquiry'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/tour-inquiry'
-  id: '__root__' | '/' | '/api/public/tour-inquiry'
+  to:
+    | '/'
+    | '/mcp'
+    | '/.well-known/oauth-protected-resource'
+    | '/api/public/tour-inquiry'
+  id:
+    | '__root__'
+    | '/'
+    | '/mcp'
+    | '/.well-known/oauth-protected-resource'
+    | '/api/public/tour-inquiry'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  McpRoute: typeof McpRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiPublicTourInquiryRoute: typeof ApiPublicTourInquiryRoute
 }
 
@@ -56,6 +90,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/tour-inquiry': {
@@ -70,6 +118,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  McpRoute: McpRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiPublicTourInquiryRoute: ApiPublicTourInquiryRoute,
 }
 export const routeTree = rootRouteImport
